@@ -2,7 +2,6 @@ package com.leysoft.adapter.persistence
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.application.ApplicationEnvironment
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,14 +11,25 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DatabaseUtil {
 
     fun init() {
-        Database.connect(h2Hikari())
+        Database.connect(postgresDataSource())
         transaction {
             SchemaUtils.create(EmojiTable)
         }
     }
 
-    @KtorExperimentalAPI
-    private fun h2Hikari(): HikariDataSource {
+    private fun postgresDataSource(): HikariDataSource {
+        val config = HikariConfig()
+        config.driverClassName = "org.postgresql.Driver"
+        config.jdbcUrl = "jdbc:postgresql://localhost:5432/ktor_db"
+        config.maximumPoolSize = 10
+        config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+        config.username = "ktor"
+        config.password = "ktor"
+        config.validate()
+        return HikariDataSource(config)
+    }
+
+    private fun h2DataSource(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.h2.Driver"
         config.jdbcUrl = "jdbc:h2:mem:test"

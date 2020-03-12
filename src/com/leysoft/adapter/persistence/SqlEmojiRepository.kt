@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.transaction
 
-class H2EmojiRepository private constructor() : EmojiRepository {
+class SqlEmojiRepository private constructor() : EmojiRepository {
 
     override suspend fun save(data: Emoji): Emoji {
        return transaction {
@@ -27,7 +27,7 @@ class H2EmojiRepository private constructor() : EmojiRepository {
 
     companion object {
 
-        fun make(): EmojiRepository = H2EmojiRepository()
+        fun make(): EmojiRepository = SqlEmojiRepository()
 
         private val f : (ResultRow) -> Emoji = {row ->
             Emoji(

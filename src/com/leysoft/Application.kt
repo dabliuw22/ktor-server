@@ -3,8 +3,7 @@ package com.leysoft
 import com.leysoft.adapter.auth.User
 import com.leysoft.adapter.http.*
 import com.leysoft.adapter.persistence.DatabaseUtil
-import com.leysoft.adapter.persistence.H2EmojiRepository
-import com.leysoft.adapter.persistence.InMemoryEmojiRepository
+import com.leysoft.adapter.persistence.SqlEmojiRepository
 import com.leysoft.application.DefaultEmojiService
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -60,7 +59,7 @@ fun Application.module(testing: Boolean = false) {
 
     DatabaseUtil.init()
 
-    val repository = H2EmojiRepository.make()
+    val repository = SqlEmojiRepository.make()
     val service = DefaultEmojiService.make(repository)
 
     routing {
