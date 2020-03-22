@@ -7,15 +7,14 @@ import org.jetbrains.exposed.sql.transactions.experimental.transaction
 
 class SqlEmojiRepository private constructor() : EmojiRepository {
 
-    override suspend fun save(data: Emoji): Emoji {
-       return transaction {
-           EmojiTable.insert {
-               it[id] = data.id.value
-               it[name] = data.name.value
-               it[phrase] = data.phrase.value
-           }.let { data }
-       }
-    }
+    override suspend fun save(data: Emoji): Emoji =
+        transaction {
+            EmojiTable.insert {
+                it[id] = data.id.value
+                it[name] = data.name.value
+                it[phrase] = data.phrase.value
+            }.let { data }
+        }
 
     override suspend fun findAll(): List<Emoji> = DatabaseUtil.all(EmojiTable, f)
 
@@ -29,7 +28,7 @@ class SqlEmojiRepository private constructor() : EmojiRepository {
 
         fun make(): EmojiRepository = SqlEmojiRepository()
 
-        private val f : (ResultRow) -> Emoji = {row ->
+        private val f : (ResultRow) -> Emoji = { row ->
             Emoji(
                 id = EmojiId(row[EmojiTable.id]),
                 name = EmojiName(row[EmojiTable.name]),

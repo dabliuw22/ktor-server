@@ -32,7 +32,7 @@ object DatabaseUtil {
     private fun h2DataSource(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.h2.Driver"
-        config.jdbcUrl = "jdbc:h2:mem:test"
+        config.jdbcUrl = "jdbc:h2:ktor_db"
         config.maximumPoolSize = 10
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
