@@ -1,8 +1,9 @@
 package com.leysoft.adapter.persistence
 
 import com.leysoft.domain.*
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.transaction
 
 class SqlEmojiRepository private constructor() : EmojiRepository {

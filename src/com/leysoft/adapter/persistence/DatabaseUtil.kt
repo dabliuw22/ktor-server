@@ -2,7 +2,6 @@ package com.leysoft.adapter.persistence
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.*
@@ -14,6 +13,7 @@ object DatabaseUtil {
         Database.connect(postgresDataSource())
         transaction {
             SchemaUtils.create(EmojiTable)
+            SchemaUtils.create(UserTable)
         }
     }
 

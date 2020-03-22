@@ -13,3 +13,15 @@ data class Emoji(
     val name: EmojiName,
     val phrase: EmojiPhrase
 )
+
+data class UserId(val value: String = UUID.randomUUID().toString())
+
+data class UserName(val value: String)
+
+data class UserPassword(val value: String)
+
+data class User(
+    val id: UserId = UserId(),
+    val username: UserName,
+    val password: UserPassword
+)

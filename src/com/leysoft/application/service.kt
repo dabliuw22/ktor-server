@@ -1,8 +1,6 @@
 package com.leysoft.application
 
-import com.leysoft.domain.Emoji
-import com.leysoft.domain.EmojiId
-import com.leysoft.domain.EmojiRepository
+import com.leysoft.domain.*
 
 interface EmojiService {
 
@@ -33,3 +31,26 @@ class DefaultEmojiService private constructor(private val repository: EmojiRepos
     }
 }
 
+interface UserService {
+
+    suspend fun create(user: User): User
+
+    suspend fun getBy(id: UserId): User
+
+    suspend fun getBy(username: UserName, password: UserPassword): User
+}
+
+class DefaultUserService private constructor(private val repository: UserRepository) : UserService {
+
+    override suspend fun create(user: User): User  = repository.save(user)
+
+    override suspend fun getBy(id: UserId): User = repository.findById(id)
+
+    override suspend fun getBy(username: UserName, password: UserPassword): User =
+        repository.findByUsernameAndPassword(username, password)
+
+    companion object {
+
+        fun make(repository: UserRepository): UserService = DefaultUserService(repository)
+    }
+}

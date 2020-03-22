@@ -1,15 +1,19 @@
 package com.leysoft
 
-import com.leysoft.adapter.auth.User
+import com.leysoft.adapter.auth.*
 import com.leysoft.adapter.http.*
 import com.leysoft.adapter.persistence.DatabaseUtil
 import com.leysoft.adapter.persistence.SqlEmojiRepository
+import com.leysoft.adapter.persistence.SqlUserRepository
 import com.leysoft.application.DefaultEmojiService
+import com.leysoft.application.DefaultUserService
+import com.leysoft.domain.UserId
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.basic
+import io.ktor.auth.jwt.jwt
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
@@ -26,6 +30,12 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+
+    DatabaseUtil.init()
+
+    val emojiService = SqlEmojiRepository.make().let { DefaultEmojiService.make(it) }
+
+    val userService = SqlUserRepository.make().let { DefaultUserService.make(it) }
 
     install(DefaultHeaders)
 
@@ -50,22 +60,27 @@ fun Application.module(testing: Boolean = false) {
         basic("basic-auth") {
             realm = "ktor-server"
             validate { credentials ->
-                if (credentials.password == "test.password") User(credentials.name) else null
+                if (credentials.password == "test.password") BasicUserPrincipal(credentials.name) else null
+            }
+        }
+        jwt("jwt") {
+            realm = "ktor-server"
+            verifier(Jwt.verifier())
+            validate { credentials ->
+                credentials.payload.getClaim("id").asString()
+                    .let { userService.getBy(UserId(it)) }
+                    .let { JwtUserPrincipal(it.id.value, it.username.value) }
             }
         }
     }
 
     install(Locations) // Enable Locations
 
-    DatabaseUtil.init()
-
-    val repository = SqlEmojiRepository.make()
-    val service = DefaultEmojiService.make(repository)
-
     routing {
         home()
         about()
-        emoji(service)
+        emoji(emojiService)
+        auth(userService, Hash.hash)
     }
 }
 

@@ -1,6 +1,6 @@
 package com.leysoft.adapter.http
 
-import com.leysoft.adapter.auth.User
+import com.leysoft.adapter.auth.JwtUserPrincipal
 import com.leysoft.application.EmojiService
 import com.leysoft.domain.Emoji
 import com.leysoft.domain.EmojiId
@@ -15,8 +15,6 @@ import io.ktor.locations.post
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.post as rpost
-import io.ktor.routing.get as rget
 
 data class EmojiRequest(
     val emoji: String,
@@ -40,27 +38,21 @@ fun Emoji.toResponse() = EmojiResponse(
     phrase = this.phrase.value
 )
 
-fun String.to() = EmojiId(this)
-
 const val EMOJI = "/emojis"
-
 @Location(path = EMOJI)
 class EmojiPath
 
 const val ID = "id"
-
 const val GET_EMOJI = "$EMOJI/{$ID}"
-
 @Location(path = GET_EMOJI)
 data class GetEmojiPath(val id: String) {
-
     fun to() : EmojiId = EmojiId(id)
 }
 
 fun Route.emoji(service: EmojiService) {
-    authenticate("basic-auth") {
+    authenticate("jwt") {
         get<EmojiPath> {
-            println("User: ${(call.authentication.principal as User)}")
+            println("User: ${(call.authentication.principal as JwtUserPrincipal)}")
             service.getAll()
                 .map { it.toResponse() }
                 .let { call.respond(it) }
